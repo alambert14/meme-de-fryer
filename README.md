@@ -1,5 +1,10 @@
 # Meme De-Fryer
-Where memes are pristenely cleaned
+## Where memes are pristenely cleaned  
+COVID-19 apocalypse quarantine "passion" project
 ***
-COVID-19 apocalypse quarentine "passion" project
+## Goal
+### Original:
+![Deep fried meme](deepfried.png "Deep fried meme")
+### Processed:
+![Clean meme](unfried.png "Clean meme")
 
