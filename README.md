@@ -9,4 +9,4 @@ COVID-19 apocalypse quarantine "passion" project
 ![Clean meme](img/unfried.png "Clean meme")
 ## Progress
 ### After noise smoothing and desaturation
-![Smoothing](img/smooth.png "Smoothing")
+![Smoothing](img/smoothing.png "Smoothing")
