@@ -14,11 +14,14 @@ def desaturate(img):
     for j in range(hsv.shape[0]):
         for i in range(hsv.shape[1]):
             new_s = hsv[j, i, 1] - 50
+            new_v = hsv[j, i, 2]
             if new_s < 0:
                 new_s = 0
+            if new_v < 0:
+                new_v = 0
             new_hsv = [hsv[j, i, 0],
                        new_s,
-                       hsv[j, i, 2]]
+                       new_v]
             desaturated[j, i] = new_hsv
     bgr = cv2.cvtColor(desaturated, cv2.COLOR_HSV2BGR)
     return bgr
