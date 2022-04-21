@@ -7,7 +7,7 @@ import math
 import pkgutil
 from typing import Tuple
 
-from PIL import Image, ImageOps, ImageEnhance
+from PIL import Image, ImageOps, ImageEnhance, ImageFilter
 import cv2
 import numpy
 
@@ -29,6 +29,21 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 
 FlarePosition = namedtuple('FlarePosition', ['x', 'y', 'size'])
 
+def add_salt_and_pepper(image, amount):
+
+    output = numpy.copy(numpy.array(image))
+
+    # add salt
+    nb_salt = numpy.ceil(amount * output.size * 0.5)
+    coords = [numpy.random.randint(0, i - 1, int(nb_salt)) for i in output.shape]
+    output[coords] = 1
+
+    # add pepper
+    nb_pepper = numpy.ceil(amount* output.size * 0.5)
+    coords = [numpy.random.randint(0, i - 1, int(nb_pepper)) for i in output.shape]
+    output[coords] = 0
+
+    return Image.fromarray(output)
 
 async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flares: bool = False) -> Image:
     """
@@ -48,9 +63,35 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     `Image`
         Deepfried image.
     """
+    SHARPNESS = 4
+    CONTRAST = 2
+    BRIGHTNESS = 2
+    SATURATION = 1.5
+    NOISE = 0.05
+ 
     img = img.copy().convert('RGB')
-    flare_positions = []
+    # flare_positions = []
 
+    # SHARPEN
+    for i in range(SHARPNESS):
+        img = img.filter(ImageFilter.SHARPEN)
+
+    # CONTRAST
+    contrast = ImageEnhance.Contrast(img)
+    img = contrast.enhance(CONTRAST)
+
+    # BRIGHTNESS
+    brightness = ImageEnhance.Brightness(img)
+    img = brightness.enhance(BRIGHTNESS)
+
+    # SATURATION
+    saturation = ImageEnhance.Color(img)
+    img = saturation.enhance(SATURATION)
+
+    # NOISE
+    img = add_salt_and_pepper(img,NOISE)
+
+    """
     if flares:
         opencv_img = cv2.cvtColor(numpy.array(img), cv2.COLOR_RGB2GRAY)
 
@@ -75,8 +116,10 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
                 eye_corner = FlarePosition(*corners, flare_size)
 
                 flare_positions.append(eye_corner)
+    """
 
     # Crush image to hell and back
+    """
     img = img.convert('RGB')
     width, height = img.width, img.height
     img = img.resize((int(width ** .75), int(height ** .75)), resample=Image.LANCZOS)
@@ -84,8 +127,10 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     img = img.resize((int(width ** .9), int(height ** .9)), resample=Image.BICUBIC)
     img = img.resize((width, height), resample=Image.BICUBIC)
     img = ImageOps.posterize(img, 4)
+    """
 
     # Generate colour overlay
+    """
     r = img.split()[0]
     r = ImageEnhance.Contrast(r).enhance(2.0)
     r = ImageEnhance.Brightness(r).enhance(1.5)
@@ -95,10 +140,13 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     # Overlay red and yellow onto main image and sharpen the hell out of it
     img = Image.blend(img, r, 0.75)
     img = ImageEnhance.Sharpness(img).enhance(100.0)
+    """
 
     # Apply flares on any detected eyes
+    """
     for flare in flare_positions:
         flare_transformed = flare_img.copy().resize((flare.size,) * 2, resample=Image.BILINEAR)
         img.paste(flare_transformed, (flare.x, flare.y), flare_transformed)
+    """
 
     return img
