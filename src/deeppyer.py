@@ -25,12 +25,12 @@ class DefaultColours:
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
-flare_img = Image.open(BytesIO(pkgutil.get_data(__package__, 'flare.png')))
+#flare_img = Image.open(BytesIO(pkgutil.get_data(__package__, 'flare.png')))
 
 FlarePosition = namedtuple('FlarePosition', ['x', 'y', 'size'])
 
 
-async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flares: bool = True) -> Image:
+async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flares: bool = False) -> Image:
     """
     Deepfry a given image.
 
