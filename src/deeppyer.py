@@ -63,18 +63,13 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     `Image`
         Deepfried image.
     """
-    SHARPNESS = 3
-    CONTRAST = 5
-    BRIGHTNESS = 4
-    SATURATION = 1.5
+    # SHARPNESS = 3
+    CONTRAST = 1.4
+    BRIGHTNESS = 1.6
+    SATURATION = 0.7
     NOISE = 2
  
     img = img.copy().convert('RGB')
-    # flare_positions = []
-
-    # SHARPEN
-    for i in range(SHARPNESS):
-        img = img.filter(ImageFilter.SHARPEN)
 
     # CONTRAST
     contrast = ImageEnhance.Contrast(img)
@@ -88,6 +83,7 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     saturation = ImageEnhance.Color(img)
     img = saturation.enhance(SATURATION)
 
+    img = img.filter(ImageFilter.UnsharpMask(radius = 2, percent = 150, threshold = 3))
     # NOISE
     skimg = numpy.asarray(img)
     for i in range(NOISE):
@@ -95,29 +91,12 @@ async def deepfry(img: Image, *, colours: ColourTuple = DefaultColours.red, flar
     skimg = (255*skimg).astype(numpy.uint8)
     img = Image.fromarray(skimg)
 
-    # img = img.filter(ImageFilter.UnsharpMask(radius = 3, percent = 200, threshold = 5))
     # Crush image to hell and back
     img = img.convert('RGB')
     width, height = img.width, img.height
     img = img.resize((int(width ** .95), int(height ** .95)), resample=Image.LANCZOS)
     img = img.resize((int(width ** .95), int(height ** .95)), resample=Image.BICUBIC)
     img = img.resize((width, height), resample=Image.BICUBIC)
-    img = ImageOps.posterize(img, 4)
+    # img = ImageOps.posterize(img, 4)
     
-    # BLUR
-    # img = img.filter(ImageFilter.GaussianBlur(radius = 1))
-
-    # Generate colour overlay
-    """
-    r = img.split()[0]
-    r = ImageEnhance.Contrast(r).enhance(2.0)
-    r = ImageEnhance.Brightness(r).enhance(1.5)
-
-    r = ImageOps.colorize(r, colours[0], colours[1])
-
-    # Overlay red and yellow onto main image and sharpen the hell out of it
-    img = Image.blend(img, r, 0.75)
-    img = ImageEnhance.Sharpness(img).enhance(100.0)
-    """
-
     return img
